@@ -45,7 +45,7 @@
 
     - name: Copy built JAR to artifact directory
       copy:
-        src: "{{ build_dir }}/app-src/complete/target/spring-boot-0.0.1-SNAPSHOT.jar"
+        src: "{{ build_dir }}/app-src/complete/target/spring-boot-complete-0.0.1-SNAPSHOT.jar"
         dest: "{{ artifact_dir }}/app.jar"
         remote_src: yes
         mode: '0644'
