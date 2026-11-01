@@ -105,7 +105,7 @@
 
     - name: Deploy systemd service unit
       template:
-        src: templates/java-app.service.j2
+        src: templates/java-app.service
         dest: /etc/systemd/system/java-app.service
         mode: '0644'
       notify:
