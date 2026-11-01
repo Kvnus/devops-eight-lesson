@@ -1,0 +1,58 @@
+---
+# ========== PLAY 1: Build ==========
+- name: Build Java application on build node
+  hosts: build
+  become: yes
+  vars:
+    build_dir: /opt/build
+    repo_url: "https://github.com/spring-guides/gs-spring-boot.git"
+    maven_branch: main
+    artifact_dir: /tmp/java-artifact
+
+  tasks:
+    - name: Install JDK and Maven
+      apt:
+        name:
+          - openjdk-17-jdk
+          - maven
+        state: present
+        update_cache: yes
+
+    - name: Create build workspace
+      file:
+        path: "{{ build_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Clone sample Spring Boot application
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ build_dir }}/app-src"
+        version: "{{ maven_branch }}"
+
+    - name: Build application with Maven
+      shell: |
+        cd {{ build_dir }}/app-src/complete
+        mvn clean package -DskipTests
+      args:
+        chdir: "{{ build_dir }}/app-src/complete"
+
+    - name: Create artifact directory
+      file:
+        path: "{{ artifact_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy built JAR to artifact directory
+      copy:
+        src: "{{ build_dir }}/app-src/complete/target/spring-boot-0.0.1-SNAPSHOT.jar"
+        dest: "{{ artifact_dir }}/app.jar"
+        remote_src: yes
+        mode: '0644'
+
+    - name: Fetch JAR to control node for production deployment
+      fetch:
+        src: "{{ artifact_dir }}/app.jar"
+        dest: "/tmp/app.jar"
+        flat: yes
+
